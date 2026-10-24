@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  RECEPTIONIST
+  VET
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  role      Role     @default(RECEPTIONIST)
+
+  veterinarian Veterinarian?
+
+  @@map("users")
+}
+
+model Veterinarian {
+  id        String   @id @default(uuid())
+  crmv      String   @unique
+  specialty String?
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("veterinarians")
+}
+
+model Guardian {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  number    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  pets      Pet[]
+
+  @@map("guardians")
+}
+
+model Pet {
+  id        String   @id @default(uuid())
+  name      String
+  sex       Sex
+  birthDate DateTime @map("birth_date")
+  breed     String
+
+  guardianId String   @map("guardian_id")
+  guardian   Guardian @relation(fields: [guardianId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pets")
+}
