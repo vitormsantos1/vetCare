@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role, Status } from '@prisma/client';
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -28,4 +35,12 @@ export class CreateUserDto {
   @IsString({ message: 'A senha deve ser válido' })
   @IsNotEmpty({ message: 'A senha não pode estar vazia' })
   password!: string;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
+
+  @IsOptional()
+  @IsEnum(Status)
+  status?: Status;
 }
