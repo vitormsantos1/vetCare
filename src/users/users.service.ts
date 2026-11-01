@@ -2,6 +2,7 @@
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { UserRepository } from './users.repository';
+import { AuthenticatedReq } from 'src/auth/interfaces/authenticated-request.interface';
 
 @Injectable()
 export class UserService {
@@ -22,7 +24,11 @@ export class UserService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, req: AuthenticatedReq) {
+    if (req.user.role !== 'ADMIN' || req.user.id !== id) {
+      throw new UnauthorizedException('Usuário não autorizado');
+    }
+
     const user = await this.userRepository.findById(id);
 
     if (!user) {
@@ -56,7 +62,11 @@ export class UserService {
     });
   }
 
-  async update(id: string, dto: UpdateUserDto) {
+  async update(id: string, dto: UpdateUserDto, req: AuthenticatedReq) {
+    if (req.user.role !== 'ADMIN' || req.user.id !== id) {
+      throw new UnauthorizedException('Usuário não autorizado');
+    }
+
     const existingUser = await this.userRepository.findById(id);
 
     if (!existingUser) {
