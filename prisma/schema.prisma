@@ -78,7 +78,7 @@ model Pet {
   breed     String
 
   guardianId String   @map("guardian_id")
-  guardian   Guardian @relation(fields: [guardianId], references: [id])
+  guardian   Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
