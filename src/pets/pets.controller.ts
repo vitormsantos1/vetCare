@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PetsService } from './pets.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@ApiTags('Pets')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('pets')
 export class PetsController {

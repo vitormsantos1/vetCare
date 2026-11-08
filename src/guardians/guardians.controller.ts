@@ -1,9 +1,12 @@
 import { Controller, Get, Query, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { GuardiansService } from './guardians.service';
 import { CreateGuardianDto } from './dto/create-guardian.dto';
 import { UpdateGuardianDto } from './dto/update-guardian.dto';
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard'; 
 
+@ApiTags('Tutores')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('guardians')
 export class GuardiansController {
