@@ -1,4 +1,5 @@
 ﻿import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { UserRepository } from './users.repository';
 import { AuthenticatedReq } from 'src/auth/interfaces/authenticated-request.interface';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -47,6 +49,12 @@ export class UserService {
       throw new ConflictException('Já existe um usuário com este e-mail.');
     }
 
+    if (dto.role === Role.VET) {
+      throw new BadRequestException(
+        'Veterinários devem ser criados pelo módulo de veterinários.',
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const user = await this.userRepository.create({
@@ -71,6 +79,14 @@ export class UserService {
 
     if (!existingUser) {
       throw new NotFoundException('Usuário não encontrado.');
+    }
+
+    if (dto.role !== undefined && dto.role !== existingUser.role) {
+      if (dto.role === Role.VET || existingUser.role === Role.VET) {
+        throw new BadRequestException(
+          'O perfil de veterinário não pode ser atribuído nem removido por aqui.',
+        );
+      }
     }
 
     if (dto.email && dto.email !== existingUser.email) {

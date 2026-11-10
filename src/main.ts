@@ -18,7 +18,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('VetCare API')
-    .setDescription('Documentação do sistema de gerenciamento da clínica veterinária')
+    .setDescription(
+      'Documentação do sistema de gerenciamento da clínica veterinária',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
