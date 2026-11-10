@@ -27,7 +27,7 @@ export class UserService {
   }
 
   async findOne(id: string, req: AuthenticatedReq) {
-    if (req.user.role !== 'ADMIN' || req.user.id !== id) {
+    if (req.user.role !== 'ADMIN' && req.user.id !== id) {
       throw new UnauthorizedException('Usuário não autorizado');
     }
 
@@ -71,7 +71,7 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDto, req: AuthenticatedReq) {
-    if (req.user.role !== 'ADMIN' || req.user.id !== id) {
+    if (req.user.role !== 'ADMIN' && req.user.id !== id) {
       throw new UnauthorizedException('Usuário não autorizado');
     }
 

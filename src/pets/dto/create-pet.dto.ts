@@ -34,7 +34,7 @@ export class CreatePetDto {
 
   @ApiProperty({
     description: 'Data de nascimento do pet',
-    example: 'Fulano sicrano',
+    example: '2000-01-01',
   })
   @IsOptional()
   @IsDateString(
