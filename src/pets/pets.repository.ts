@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
@@ -7,39 +8,63 @@ import { UpdatePetDto } from './dto/update-pet.dto';
 export class PetsRepository {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreatePetDto) {
+  async create(guardianId: string, data: CreatePetDto) {
+    const { birthDate, ...rest } = data;
     return this.prisma.pet.create({
       data: {
-        ...data,
-        birthDate: new Date(data.birthDate),
+        ...rest,
+        guardianId,
+        birthDate: birthDate ? new Date(birthDate) : undefined,
       },
     });
   }
 
-  async findAll() {
-    return this.prisma.pet.findMany({ include: { guardian: true } });
+  async findAll(
+    skip: number,
+    take: number,
+    guardianId?: string,
+    search?: string,
+  ) {
+    const where: Prisma.PetWhereInput = {
+      status: Status.ACTIVE,
+      ...(guardianId && { guardianId }),
+      ...(search && { name: { contains: search, mode: 'insensitive' } }),
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.pet.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.pet.count({ where }),
+    ]);
+
+    return { items, total };
   }
 
   async findOne(id: string) {
-    return this.prisma.pet.findUnique({
-      where: { id },
-      include: { guardian: true },
+    return this.prisma.pet.findFirst({
+      where: { id, status: Status.ACTIVE },
     });
   }
 
   async update(id: string, data: UpdatePetDto) {
-    const updateData = { ...data };
-    if (updateData.birthDate) {
-      updateData.birthDate = new Date(updateData.birthDate) as any;
-    }
-
+    const { birthDate, ...rest } = data;
     return this.prisma.pet.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...rest,
+        ...(birthDate && { birthDate: new Date(birthDate) }),
+      },
     });
   }
 
   async remove(id: string) {
-    return this.prisma.pet.delete({ where: { id } });
+    return this.prisma.pet.update({
+      where: { id },
+      data: { status: Status.INACTIVE },
+    });
   }
 }
