@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateGuardianDto } from './dto/create-guardian.dto';
 import { UpdateGuardianDto } from './dto/update-guardian.dto';
@@ -11,23 +12,28 @@ export class GuardiansRepository {
     return this.prisma.guardian.create({ data });
   }
 
-  async findAll(skip: number, take: number) {
-    return this.prisma.guardian.findMany({
-      skip,
-      take,
-      include: { pets: true },
-    });
+  async findAll(skip: number, take: number, search?: string) {
+    const where: Prisma.GuardianWhereInput = {
+      ...(search && { name: { contains: search, mode: 'insensitive' } }),
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.guardian.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.guardian.count({ where }),
+    ]);
+
+    return { items, total };
   }
 
   async findOne(id: string) {
-    return this.prisma.guardian.findUnique({
+    return this.prisma.guardian.findFirst({
       where: { id },
-      include: { pets: true },
     });
-  }
-
-  async findByEmail(email: string) {
-  return this.prisma.guardian.findUnique({ where: { email } });
   }
 
   async update(id: string, data: UpdateGuardianDto) {
@@ -38,8 +44,9 @@ export class GuardiansRepository {
   }
 
   async remove(id: string) {
-    return this.prisma.guardian.delete({
+    return this.prisma.guardian.update({
       where: { id },
+      data: { status: Status.INACTIVE },
     });
   }
 }

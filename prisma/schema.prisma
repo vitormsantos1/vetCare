@@ -28,14 +28,14 @@ enum Sex {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  status    Status   @default(ACTIVE)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  role      Role     @default(RECEPTIONIST)
+  id                          String    @id @default(uuid())
+  name                        String
+  email                       String    @unique
+  password                    String
+  status                      Status    @default(ACTIVE)
+  createdAt                   DateTime  @default(now()) @map("created_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
+  role                        Role      @default(RECEPTIONIST)
   passwordResetTokenHash      String?   @unique @map("password_reset_token_hash")
   passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
 
@@ -61,27 +61,33 @@ model Veterinarian {
 model Guardian {
   id        String   @id @default(uuid())
   name      String
-  email     String   @unique
-  number    String
+  cpf       String   @unique
+  email     String?
+  phone     String
+  status    Status   @default(ACTIVE)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   pets      Pet[]
 
+  @@index([name])
   @@map("guardians")
 }
 
 model Pet {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
+  species   String
   sex       Sex
-  birthDate DateTime @map("birth_date")
-  breed     String
+  birthDate DateTime? @map("birth_date")
+  breed     String?
+  status    Status    @default(ACTIVE)
 
   guardianId String   @map("guardian_id")
-  guardian   Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+  guardian   Guardian @relation(fields: [guardianId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([guardianId])
   @@map("pets")
 }
