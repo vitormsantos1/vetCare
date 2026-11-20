@@ -1,15 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { GuardiansRepository } from './guardians.repository';
 import { GuardiansService } from './guardians.service';
 
 describe('GuardiansService', () => {
   let service: GuardiansService;
+  let repository: jest.Mocked<GuardiansRepository>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [GuardiansService],
-    }).compile();
+  beforeEach(() => {
+    repository = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      findByCpf: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+    } as never;
 
-    service = module.get<GuardiansService>(GuardiansService);
+    service = new GuardiansService(repository);
   });
 
   it('should be defined', () => {

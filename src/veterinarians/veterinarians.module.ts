@@ -7,6 +7,6 @@ import { PrismaService } from '../prisma/prisma.service';
 @Module({
   controllers: [VeterinariansController],
   providers: [VeterinariansService, VeterinariansRepository, PrismaService],
-  exports: [VeterinariansRepository],
+  exports: [VeterinariansRepository, VeterinariansService,],
 })
 export class VeterinariansModule {}

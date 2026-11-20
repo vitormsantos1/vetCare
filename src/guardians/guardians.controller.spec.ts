@@ -1,17 +1,24 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { GuardiansController } from './guardians.controller';
 import { GuardiansService } from './guardians.service';
 
+jest.mock('@nestjs/passport', () => ({
+  AuthGuard: () => class JwtAuthGuard {},
+}));
+
 describe('GuardiansController', () => {
   let controller: GuardiansController;
+  let service: jest.Mocked<GuardiansService>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [GuardiansController],
-      providers: [GuardiansService],
-    }).compile();
+  beforeEach(() => {
+    service = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+    } as never;
 
-    controller = module.get<GuardiansController>(GuardiansController);
+    controller = new GuardiansController(service);
   });
 
   it('should be defined', () => {

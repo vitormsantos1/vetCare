@@ -7,9 +7,11 @@ import { AuthModule } from './auth/auth.module';
 import { GuardiansModule } from './guardians/guardians.module';
 import { PetsModule } from './pets/pets.module';
 import { VeterinariansModule } from './veterinarians/veterinarians.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { MedicalRecordsModule } from './medical-records/medical-records.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), GuardiansModule, PetsModule, VeterinariansModule,],
+  imports: [UsersModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), GuardiansModule, PetsModule, VeterinariansModule, AppointmentsModule, MedicalRecordsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

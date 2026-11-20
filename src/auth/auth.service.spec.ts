@@ -43,7 +43,7 @@ describe('AuthService password recovery', () => {
     jest.clearAllMocks();
   });
 
-  it('stores only the token hash with a 15-minute expiration and sends the raw token link', async () => {
+  it('stores only the token hash with a 15-minute expiration and sends the raw recovery code', async () => {
     repository.findByEmail.mockResolvedValue(activeUser);
     const before = Date.now();
     await service.forgotPassword(activeUser.email);
@@ -55,9 +55,12 @@ describe('AuthService password recovery', () => {
     expect(expiresAt.getTime()).toBeLessThanOrEqual(
       Date.now() + 15 * 60 * 1000,
     );
-    const link = mail.sendPasswordRecoveryEmail.mock.calls[0][1];
-    const token = new URL(link).searchParams.get('token')!;
-    expect(createHash('sha256').update(token).digest('hex')).toBe(tokenHash);
+    expect(mail.sendPasswordRecoveryEmail).toHaveBeenCalledWith(
+      activeUser.email,
+      expect.any(String),
+    );
+    const code = mail.sendPasswordRecoveryEmail.mock.calls[0][1];
+    expect(createHash('sha256').update(code).digest('hex')).toBe(tokenHash);
   });
 
   it.each([null, { ...activeUser, status: Status.INACTIVE }])(

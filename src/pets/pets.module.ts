@@ -9,5 +9,6 @@ import { GuardiansModule } from '../guardians/guardians.module';
   imports: [GuardiansModule],
   controllers: [PetsController],
   providers: [PetsService, PetsRepository, PrismaService],
+  exports: [PetsService],
 })
 export class PetsModule {}
