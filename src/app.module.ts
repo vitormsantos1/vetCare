@@ -9,9 +9,11 @@ import { PetsModule } from './pets/pets.module';
 import { VeterinariansModule } from './veterinarians/veterinarians.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
+import { VaccinationsModule } from './vaccinations/vaccinations.module';
+import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), GuardiansModule, PetsModule, VeterinariansModule, AppointmentsModule, MedicalRecordsModule,],
+  imports: [UsersModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), GuardiansModule, PetsModule, VeterinariansModule, AppointmentsModule, MedicalRecordsModule, VaccinationsModule, PrescriptionsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

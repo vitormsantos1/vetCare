@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -30,6 +28,19 @@ enum Sex {
 enum AppointmentStatus {
   SCHEDULED
   COMPLETED
+  CANCELED
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
   CANCELED
 }
 
@@ -62,6 +73,8 @@ model Veterinarian {
   user           User            @relation(fields: [userId], references: [id])
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
+  vaccinations   Vaccination[]
+  prescriptions  Prescription[]
 
   @@map("veterinarians")
 }
@@ -98,6 +111,8 @@ model Pet {
   guardian       Guardian        @relation(fields: [guardianId], references: [id])
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
+  vaccinations   Vaccination[]
+  prescriptions  Prescription[]
 
   @@index([guardianId])
   @@map("pets")
@@ -119,6 +134,9 @@ model Appointment {
   veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
 
   medicalRecord MedicalRecord?
+  payment       Payment?
+  vaccinations  Vaccination[]
+  prescriptions Prescription[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -147,4 +165,65 @@ model MedicalRecord {
 
   @@index([petId, createdAt])
   @@map("medical_records")
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  amount      Decimal       @db.Decimal(10, 2)
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+  description String?
+  paidAt      DateTime?     @map("paid_at")
+
+  appointmentId String      @unique @map("appointment_id")
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("payments")
+}
+
+model Vaccination {
+  id          String    @id @default(uuid())
+  vaccineName String    @map("vaccine_name")
+  batch       String?
+  appliedAt   DateTime  @default(now()) @map("applied_at")
+  nextDoseAt  DateTime? @map("next_dose_at")
+  notes       String?
+
+  petId          String       @map("pet_id")
+  pet            Pet          @relation(fields: [petId], references: [id])
+  veterinarianId String       @map("veterinarian_id")
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+  appointmentId  String?      @map("appointment_id")
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([petId, appliedAt])
+  @@map("vaccinations")
+}
+
+model Prescription {
+  id           String    @id @default(uuid())
+  medications  String
+  instructions String?
+  validUntil   DateTime? @map("valid_until")
+
+  appointmentId  String       @map("appointment_id")
+  appointment    Appointment  @relation(fields: [appointmentId], references: [id])
+  petId          String       @map("pet_id")
+  pet            Pet          @relation(fields: [petId], references: [id])
+  veterinarianId String       @map("veterinarian_id")
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([appointmentId])
+  @@index([petId, createdAt])
+  @@map("prescriptions")
 }
